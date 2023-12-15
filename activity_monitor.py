@@ -5,8 +5,8 @@ from datetime import datetime
 from pandas import DataFrame
 import os
 
-# LOG_FILE_PATH = os.path.join(os.path.expanduser('~'), 'Desktop', 'activity_log.csv')
-LOG_FILE_PATH = os.path.join('.', 'activity_log')
+LOG_FILE_PATH = os.path.join(os.path.expanduser('~'), 'Desktop', 'activity_log')
+# LOG_FILE_PATH = os.path.join('.', 'activity_log')
 
 
 class AppMonitor:
