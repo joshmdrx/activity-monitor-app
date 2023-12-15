@@ -7,3 +7,4 @@ env
 *.plist
 *.csv
 release*
+.DS_Store

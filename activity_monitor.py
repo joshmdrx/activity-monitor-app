@@ -2,8 +2,8 @@ import tkinter as tk
 from AppKit import NSWorkspace
 from pynput import keyboard, mouse
 from datetime import datetime
+from pandas import DataFrame
 import os
-import csv
 
 # LOG_FILE_PATH = os.path.join(os.path.expanduser('~'), 'Desktop', 'activity_log.csv')
 LOG_FILE_PATH = os.path.join('.', 'activity_log')
@@ -54,19 +54,10 @@ class AppMonitor:
                 self.activity_log[-1]['time'] = self.format_duration(active_time.total_seconds())
             else:
                 self.activity_log.append({'app': self.last_app, 'time': self.format_duration(active_time.total_seconds())})
-        csv_filename = f"{LOG_FILE_PATH}_{current_time.strftime('%H-%M-%S')}.csv"
-        print('writing log to ', csv_filename)
-
-        # Write CSV using native Python CSV writer
-        with open(csv_filename, mode='w', newline='') as csv_file:
-            fieldnames = ['app', 'time']
-            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-
-            # Write header
-            writer.writeheader()
-
-            # Write data
-            writer.writerows(self.activity_log)
+        df = DataFrame(self.activity_log)
+        path = LOG_FILE_PATH+'_'+current_time.strftime('%H-%M-%S')+'.csv'
+        print('writing log to ', path)
+        df.to_csv(path, index=False)
 
     def on_press(self, key):
         self.log_activity()
