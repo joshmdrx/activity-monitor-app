@@ -1,0 +1,9 @@
+env
+*__pycache__
+*.app
+*.build
+*.dist
+*.onefile-build
+*.plist
+*.csv
+release*
