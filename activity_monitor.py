@@ -4,10 +4,53 @@ from pynput import keyboard, mouse
 from datetime import datetime
 from pandas import DataFrame
 import os
+import subprocess
+
 
 LOG_FILE_PATH = os.path.join(os.path.expanduser('~'), 'Desktop', 'activity_log')
 # LOG_FILE_PATH = os.path.join('.', 'activity_log')
 
+# TODO: add support for other browsers
+BROWSERS = ['Google Chrome'] # 'Safari', 'Firefox']
+
+class AppleScriptRunner:
+
+    vscode_active_file_script = """
+        tell application "Code"
+            set activeEditor to window 1
+            set activeFile to file of activeEditor
+            set fileName to name of activeFile
+        end tell
+        return fileName
+    """
+
+    def _browser_tab_script(self, browser):
+        return f"""
+            tell application "{browser}"
+                set activeWindow to front window
+                set activeTab to active tab of activeWindow
+                set tabTitle to title of activeTab
+            end tell
+            return tabTitle
+        """
+
+    def get_active_browser_tab(self, browser):
+        try:
+            return self._run_script(self._browser_tab_script(browser))
+        except Exception as e:
+            print('Error getting active browser tab: ', e)
+            return None
+
+    def get_active_vscode_file(self):
+        try:
+            return self._run_script(self.vscode_active_file_script)
+        except Exception as e:
+            print('Error getting active VS Code file: ', e)
+            return None
+
+    def _run_script(self, script):
+        result = subprocess.check_output(['osascript', '-e', script], universal_newlines=True).strip()
+        return result
 
 class AppMonitor:
     def __init__(self):
@@ -18,14 +61,53 @@ class AppMonitor:
         self.activity_log = []
         self.listeners = []
         self.monitoring = False
+        self.script_runner = AppleScriptRunner()
 
     def get_active_app(self):
         try:
             active_app = self.workspace.activeApplication()['NSApplicationName']
+            if active_app in BROWSERS:
+                active_app = self.get_active_browser_tab(active_app)
+            # TODO: add VS Code support
+            # if active_app == 'Code':
+            #     active_app = self.get_active_vscode_file(active_app)
             return active_app
         except Exception as e:
             print('error getting getting app: ', e)
         return
+
+    def get_active_browser_tab(self, active_app):
+        try:
+            if active_app in BROWSERS:
+                tab = self.script_runner.get_active_browser_tab(active_app)
+                return tab
+            else:
+                return None
+        except Exception as e:
+            print('Error getting active browser tab: ', e)
+            return None
+
+    def get_active_chrome_tab(self, active_app):
+        try:
+            if active_app == 'Google Chrome':
+                tab = self.script_runner.get_active_chrome_tab()
+                return tab
+            else:
+                return None
+        except Exception as e:
+            print('Error getting active Chrome tab: ', e)
+            return None
+
+    def get_active_vscode_file(self, active_app):
+        try:
+            if active_app == 'Code':
+                file_name = self.script_runner.get_active_vscode_file()
+                return file_name
+            else:
+                return None
+        except Exception as e:
+            print('Error getting active VS Code file: ', e)
+            return None
 
     def log_activity(self):
         app = self.get_active_app()
