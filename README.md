@@ -34,3 +34,11 @@ python -m nuitka --onefile --macos-create-app-bundle --enable-plugin=tk-inter ac
 ```
 
 If successful, this will build output activity_monitor.app/Contents/MacOS/, which will contain the activity_monitor executable.
+
+## To do
+
+- remove pandas dependency
+- get tabs/urls for other browsers
+- build and release scripts
+- icon/splash screen
+- get active VSCode filename
