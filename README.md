@@ -27,7 +27,11 @@ python activity_monitor.py
 
 ## To build
 
-Nuitka is a python interpreter - it converts python files to C to create an executable. To build as a standalone file use:
+Nuitka is a python interpreter - it converts python files to C to create an executable.
+
+**Note that Nuitka isn't compatible with pyenv**
+
+To build as a standalone file use:
 
 ```
 python -m nuitka --onefile --macos-create-app-bundle --enable-plugin=tk-inter activity_monitor.py
@@ -37,8 +41,10 @@ If successful, this will build output activity_monitor.app/Contents/MacOS/, whic
 
 ## To do
 
+- use a objc listener for focus app changes instead of mouse input triggers
 - remove pandas dependency
 - get tabs/urls for other browsers
 - build and release scripts
 - icon/splash screen
 - get active VSCode filename
+- probably rewrite in swift/objective c
