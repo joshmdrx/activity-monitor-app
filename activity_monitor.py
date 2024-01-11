@@ -62,6 +62,9 @@ class AppMonitor:
         self.listeners = []
         self.monitoring = False
         self.script_runner = AppleScriptRunner()
+        self.info = tk.StringVar()  # Add a StringVar to store the info variable
+        self.info.set('press start to begin monitoring')
+
 
     def get_active_app(self):
         try:
@@ -73,7 +76,8 @@ class AppMonitor:
             #     active_app = self.get_active_vscode_file(active_app)
             return active_app
         except Exception as e:
-            print('error getting getting app: ', e)
+            print(f'error getting getting app: {e}')
+            self.info.set(f'error getting getting app: {e}' )
         return
 
     def get_active_browser_tab(self, active_app):
@@ -85,6 +89,7 @@ class AppMonitor:
                 return None
         except Exception as e:
             print('Error getting active browser tab: ', e)
+            self.info.set(f'Error getting active browser tab: {e}')
             return None
 
     def get_active_chrome_tab(self, active_app):
@@ -96,6 +101,7 @@ class AppMonitor:
                 return None
         except Exception as e:
             print('Error getting active Chrome tab: ', e)
+            self.info.set(f'Error getting active Chrome tab: {e}')
             return None
 
     def get_active_vscode_file(self, active_app):
@@ -107,11 +113,13 @@ class AppMonitor:
                 return None
         except Exception as e:
             print('Error getting active VS Code file: ', e)
+            self.info.set(f'Error getting active VS Code file: {e}')
             return None
 
     def log_activity(self):
         app = self.get_active_app()
         print(app)
+        self.info.set(f'current app: {app}')
         if app != self.last_app:
             if self.last_app is None:
                 self.last_app = app
@@ -139,6 +147,7 @@ class AppMonitor:
         df = DataFrame(self.activity_log)
         path = LOG_FILE_PATH+'_'+current_time.strftime('%H-%M-%S')+'.csv'
         print('writing log to ', path)
+        self.info.set(f'writing log to {path}')
         df.to_csv(path, index=False)
 
     def on_press(self, key):
@@ -204,10 +213,11 @@ class AppMonitorUI:
     def __init__(self, master):
         self.master = master
         self.master.title("Activity Monitor")
-        self.master.geometry("200x150")  # Set the default size of the window
+        self.master.geometry("250x250")  # Set the default size of the window
         self.app_monitor = AppMonitor()
         self.listeners_started = False
 
+        self.info_label = tk.Label(master, textvariable=self.app_monitor.info)  # Display the info variable on the UI
         self.start_button = tk.Button(master, text="Start Monitoring", command=self.start_listeners)
         self.stop_button = tk.Button(master, text="Stop Monitoring", command=self.stop_listeners, state=tk.DISABLED)
         self.output_button = tk.Button(master, text="Output Log", command=self.app_monitor.output_log)
@@ -215,6 +225,8 @@ class AppMonitorUI:
         self.start_button.pack(pady=10)
         self.stop_button.pack(pady=10)
         self.output_button.pack(pady=10)
+        self.info_label.pack(pady=10)
+
 
     def start_listeners(self):
         if not self.listeners_started:
